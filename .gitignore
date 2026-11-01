@@ -1,0 +1,39 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets and local config
+.env
+.streamlit/secrets.toml
+
+# Files the app exports when someone clicks download
+glazewise_comparison*.csv
+
+# Original third-party dataset folder (large, download it from the source in the README)
+Simulation dataset on fenestration and shading device variation on ventilation and energy performance of an office in cooling and heating seasons/
+
+# Optional: uncomment to stop tracking the copies of the source data.
+# Notebook 01 needs combined_ed.xlsx to run, so leave these tracked if clients should re-run it.
+Combined_ED.xlsx
+combined_ed.csv
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# other files/folders i dont want included
+docs/
+other_notebooks/

@@ -1,0 +1,144 @@
+{
+  "model": "RandomForestRegressor (100 trees) in a one-hot pipeline",
+  "target": "cooling index (dataset mean cooling = 100)",
+  "BASE": 108805094365.37576,
+  "features": [
+    "wfo",
+    "wwr",
+    "sdt",
+    "sdn",
+    "sdd",
+    "sda"
+  ],
+  "wfo_values": [
+    0,
+    45,
+    90,
+    135,
+    180,
+    225,
+    270,
+    315
+  ],
+  "wwr_values": [
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45
+  ],
+  "design_space": {
+    "HSD": {
+      "sdn": [
+        1,
+        2,
+        4
+      ],
+      "sdd": [
+        0.3,
+        0.6,
+        0.9,
+        1.2,
+        1.5
+      ],
+      "sda": [
+        90,
+        105,
+        120,
+        135,
+        150
+      ]
+    },
+    "VSD": {
+      "sdn": [
+        2,
+        4,
+        6
+      ],
+      "sdd": [
+        0.3,
+        0.6,
+        0.9,
+        1.2,
+        1.5
+      ],
+      "sda": [
+        30,
+        45,
+        60,
+        75,
+        90,
+        105,
+        120,
+        135,
+        150
+      ]
+    }
+  },
+  "inconclusive_threshold": 0.05,
+  "clear_difference_threshold": 0.2,
+  "heldout_random_split": {
+    "MAE": 0.0403,
+    "RMSE": 0.0612,
+    "R2": 0.9843
+  },
+  "note": "Relative cooling index (dataset mean = 100). Shanghai weather, BESTEST 600FF, 26 C cooling setpoint, annual. Grid values only.",
+  "trained_on": "2026-11-02",
+  "sklearn_version": "1.9.1",
+  "threshold_basis": "held-out one-input-change pairs, RF accuracy >=95.5% at predicted gap >= 0.05",
+  "floor_area_m2": 48.0,
+  "kwh_m2_per_index_point": 6.296591109107394,
+  "unit_note": "Raw values are joules for the whole room; converted as J/3.6e6/48. Heating converts to ~696 kWh/m2 and matches the paper. Cooling converts to ~630 but the paper reports ~266, so cooling is used as a relative index. Index spread (std 0.48%) matches the paper's CED std (~0.5%).",
+  "period": "annual (paper, Fig. 12)",
+  "wfo_labels": {
+    "0": "East",
+    "45": "South-East",
+    "90": "South",
+    "135": "South-West",
+    "180": "West",
+    "225": "North-West",
+    "270": "North",
+    "315": "North-East"
+  },
+  "wfo_labels_verified": "Yi et al. 2024, Table 3",
+  "sda_display": {
+    "HSD": {
+      "90": 30,
+      "105": 45,
+      "120": 60,
+      "135": 75,
+      "150": 90
+    },
+    "VSD": {
+      "30": 30,
+      "45": 45,
+      "60": 60,
+      "75": 75,
+      "90": 90,
+      "105": 105,
+      "120": 120,
+      "135": 135,
+      "150": 150
+    }
+  },
+  "sda_note": "HSD file values are real angle + 60 (Table 3). VSD file values are used as is. Angle is from the window plane.",
+  "baseline_note": "No unshaded case in the data. The paper's baseline (unshaded, west, 40% WWR) is not in combined_ed.",
+  "grid_only": true,
+  "heldout_unseen_wwr_rf": {
+    "RMSE_range": [
+      0.153,
+      0.195
+    ],
+    "note": "Random Forest on a WWR level removed from training. Not reliable off the WWR grid."
+  },
+  "model_settings": {
+    "run_period": "1 Jan to 31 Dec",
+    "cooling_setpoint_c": 26,
+    "heating_setpoint_c": 13,
+    "cooling_meter": "DistrictCooling:Facility",
+    "source": "ED_HSD2.idf and ExtractionED.rvi"
+  },
+  "n_estimators": 100
+}
