@@ -76,8 +76,7 @@ init_state()
 
 
 # ---------------------------------------------------------------- inputs
-def option_inputs(p, title):
-    st.subheader(title)
+def option_inputs(p):
     wfo = st.selectbox(
         "Window faces", meta["wfo_values"],
         format_func=lambda v: WFO_LABELS[v], key=f"{p}_wfo",
@@ -163,11 +162,17 @@ st.write(
 st.button("Copy Option A into Option B", on_click=copy_a_to_b)
 col_a, col_b = st.columns(2, gap="large")
 with col_a:
-    opt_a = option_inputs("a", "Option A")
-    show_graphic(opt_a)
+    st.subheader("Option A")
+    graphic_a = st.container()          # reserved above the inputs, filled once the inputs are read
+    opt_a = option_inputs("a")
+    with graphic_a:
+        show_graphic(opt_a)
 with col_b:
-    opt_b = option_inputs("b", "Option B")
-    show_graphic(opt_b)
+    st.subheader("Option B")
+    graphic_b = st.container()
+    opt_b = option_inputs("b")
+    with graphic_b:
+        show_graphic(opt_b)
 
 idx_a, idx_b = predict_index(opt_a), predict_index(opt_b)
 diff = idx_b - idx_a
@@ -259,8 +264,9 @@ with st.expander("About the model and its limits"):
 - **No unshaded case** - The data has no option without shading, so every comparison is between
   two shaded options.
 - **Drawings** - Schematics of the simulated room, to scale. Window size, shade depth and tilt follow
-  the simulation inputs. Shade spacing and the lean direction of tilted devices are drawn from the
-  paper's description and are not an architectural detail.
+  the simulation inputs. Shade spacing, the vertical placement of extra overhangs and the lean
+  direction of tilted devices are approximate, drawn from the paper's description, and are not an
+  architectural detail.
 """
     )
 

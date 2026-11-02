@@ -9,8 +9,10 @@ Geometry sources
 - Window height = 3.6 x WWR (two 3 m windows, 21.6 m2 wall). This reproduces the WDH table.
 
 Assumptions (not stated explicitly in the source files)
-- HSD: n overhangs per window, the first at the window top, the others stacked above it at
-  spacing (window height / n). This follows the paper's spacing rule.
+- HSD: n overhangs per window, the first at the window top, the others placed below it at
+  spacing (window height / n), so every overhang is attached to the window. The paper gives
+  only the spacing, and the jEPlus values for the extra overhangs were not found, so the
+  vertical placement of the extra overhangs is a drawing choice, not a confirmed input.
 - VSD: n fins per window, evenly spaced across the 3 m window including both edges, which
   reproduces the paper's 3 m, 1 m and 0.6 m intervals.
 - Tilt below 90 degrees leans toward the window (overhangs droop, fins lean toward the window
@@ -93,7 +95,7 @@ def _elevation(o, h):
     for wx in WIN_X0:
         if o["sdt"] == "HSD":
             for k in range(n):
-                z = WIN_TOP + k * h / n
+                z = WIN_TOP - k * h / n
                 p.append(_line(X(wx), Y(z), X(wx + WIN_W), Y(z), DEVICE, 4))
         else:
             for i in range(n):
@@ -121,15 +123,21 @@ def _section(o, h, theta):
          _rect(xw - 8, Y(WIN_TOP), 8, h * s, GLASS, GLASS_EDGE, 1.5)]
 
     for k in range(n):
-        x0, y0 = xw, Y(WIN_TOP + k * h / n)
+        x0, y0 = xw, Y(WIN_TOP - k * h / n)
         tx, ty = x0 + d * math.sin(th) * s, y0 + d * math.cos(th) * s
-        p.append(_line(x0, y0, tx, ty, DEVICE, 3, "round"))
+        lx, ly = tx, ty
+        if ly > yg:                      # do not draw a device below the ground line
+            f = (yg - y0) / (ly - y0)
+            lx, ly = x0 + (tx - x0) * f, yg
+        p.append(_line(x0, y0, lx, ly, DEVICE, 3, "round"))
         if k == 0:
-            r = 20
-            p.append(_arc(x0, y0, r, 90, 90 - theta, 0))
-            p.append(_text(x0 + (r + 12) * math.sin(th / 2), y0 + (r + 12) * math.cos(th / 2) + 4,
-                           f"{theta}°", 10, "middle", MUTED))
             p.append(_text(tx + 6, ty + 4, f"{d:g} m", 10, "start", MUTED))
+            if n == 1:                   # with several overhangs the arc label would collide
+                r = 20
+                p.append(_arc(x0, y0, r, 90, 90 - theta, 0))
+                p.append(_text(x0 + (r + 12) * math.sin(th / 2),
+                               y0 + (r + 12) * math.cos(th / 2) + 4,
+                               f"{theta}°", 10, "middle", MUTED))
 
     p.append(_text(xw - 12, (Y(sill) + Y(WIN_TOP)) / 2 + 4, f"{h:.2f} m", 10, "end", MUTED))
     p.append(_text(xw - 10, 416, "inside", 10, "end", MUTED))
