@@ -11,6 +11,8 @@ import pandas as pd
 import sklearn
 import streamlit as st
 
+from glazewise_draw import build_svg, svg_to_img_html
+
 BASE_DIR = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
 ARTIFACT_DIR = BASE_DIR / "artifacts"
 
@@ -110,6 +112,14 @@ def describe(o):
             f"{'s' if o['sdn'] > 1 else ''}, {o['sdd']:g} m deep, {tilt}° tilt")
 
 
+def show_graphic(o):
+    """Schematic of the selected option, redrawn on every change."""
+    tilt = meta["sda_display"][o["sdt"]][str(o["sda"])]
+    svg = build_svg(o, WFO_LABELS[o["wfo"]], tilt)
+    st.markdown(svg_to_img_html(svg, describe(o)), unsafe_allow_html=True)
+    st.caption(f"{describe(o)}. Schematic of the simulated room, drawn to scale.")
+
+
 # ---------------------------------------------------------------- prediction
 def predict_index(o):
     row = pd.DataFrame([o])[meta["features"]]
@@ -154,8 +164,10 @@ st.button("Copy Option A into Option B", on_click=copy_a_to_b)
 col_a, col_b = st.columns(2, gap="large")
 with col_a:
     opt_a = option_inputs("a", "Option A")
+    show_graphic(opt_a)
 with col_b:
     opt_b = option_inputs("b", "Option B")
+    show_graphic(opt_b)
 
 idx_a, idx_b = predict_index(opt_a), predict_index(opt_b)
 diff = idx_b - idx_a
@@ -235,7 +247,7 @@ with st.expander("About the model and its limits"):
         f"""
 - **Source** - Yi, Yeboah and Tang (2024), EnergyPlus simulations of a 48 m² office
   (BESTEST Case 600FF) with Shanghai weather, a 26 °C cooling setpoint and annual totals.
-- **Model** - Random Forest, 100 trees, trained on all 11,760 simulated configurations.
+- **Model** - Random Forest, {meta.get('n_estimators', 100)} trees, trained on all 11,760 simulated configurations.
   Held-out random split: R² {h['R2']}, MAE {h['MAE']} index points.
 - **Grid only** - Every selectable value appears in the training data. The model does not work
   for in-between values such as a 27% window ratio, so the app does not offer them.
@@ -246,12 +258,15 @@ with st.expander("About the model and its limits"):
 - **Climate**  - Shanghai weather. Projects in the Philippines need further validation.
 - **No unshaded case** - The data has no option without shading, so every comparison is between
   two shaded options.
+- **Drawings** - Schematics of the simulated room, to scale. Window size, shade depth and tilt follow
+  the simulation inputs. Shade spacing and the lean direction of tilted devices are drawn from the
+  paper's description and are not an architectural detail.
 """
     )
 
 with st.sidebar:
     st.header("GLAZEWISE")
-    st.caption(f"An AI-Based Window and Shading Comparison Tool for Office Cooling-Energy Demand trained on {meta['trained_on']},based on Yi et al. (2024) Dataset.")
+    st.caption(f"An AI-Based Window and Shading Comparison Tool for Office Cooling-Energy Demand trained on {meta['trained_on']}, based on Yi et al. (2024) Dataset.")
     st.caption(f"scikit-learn {meta['sklearn_version']}")
     if sklearn.__version__ != meta["sklearn_version"]:
         st.warning(
